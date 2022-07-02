@@ -19,24 +19,32 @@ struct ContentView: View {
                     CardView(content: emoji)
                 }
             }
-            .padding(.horizontal)
             .foregroundColor(/*@START_MENU_TOKEN@*/.red/*@END_MENU_TOKEN@*/)
             HStack {
-                Button(action: { emojiCount+=1 }, label: {
-                    VStack {
-                        Text("Add")
-                        Text("Card")
-                    }
-                })
-                Button(action: { emojiCount-=1 }, label: {
-                    VStack {
-                        Text("Remove")
-                        Text("Card")
-                    }
-                })
-
+                addCardButton
+                Spacer()
+                removeCardButton
             }
         }
+        .padding(.horizontal)
+    }
+    
+    var addCardButton: some View {
+        Button(action: { emojiCount+=1 }, label: {
+            VStack {
+                Text("Add")
+                Text("Card")
+            }
+        })
+    }
+
+    var removeCardButton: some View {
+        Button(action: { emojiCount-=1 }, label: {
+            VStack {
+                Text("Remove")
+                Text("Card")
+            }
+        })
     }
 }
 
