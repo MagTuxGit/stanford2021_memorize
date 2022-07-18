@@ -7,70 +7,44 @@
 
 import SwiftUI
 
-let themes = [
-    Theme(icon: "car", title: "Vehicles", emojis: [ "🚗", "🚌", "🚛", "✈️", "🚀", "🚢", "🚲", "🏍", "🚂", "🚁", "⛵️", "🚒", "🚜", "🛵", "🚤", "🚑", "🛴", "🛺", "🚋", "🚆", "🛩", "🛸", "🛶", "🛳"]),
-    Theme(icon: "hare", title: "Animals", emojis: ["🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼", "🐨", "🦁", "🐮", "🐷"]),
-    Theme(icon: "applelogo", title: "Fruits", emojis: ["🍎", "🍐", "🍊", "🍋", "🍌", "🍉", "🍇", "🍓", "🫐", "🍒", "🍑", "🍍", "🥥", "🥝"])
-]
-
 struct ContentView: View {
-    @State var emojis = themes.first!.emojis
-    @State var emojiCount = 16
+    @ObservedObject var viewModel: EmojiMemoryGame
+    
+    var cardsCount: Int {
+        viewModel.cards.count
+    }
     
     var body: some View {
         VStack {
             Text("Memorize!").font(.title)
             ScrollView {
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: widthThatBestFits(cardCount: emojiCount)))]) {
-                    ForEach(emojis[0..<emojiCount], id: \.self) { emoji in
-                        CardView(content: emoji)
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: widthThatBestFits(cardCount: cardsCount)))]) {
+                    ForEach(viewModel.cards) { card in
+                        CardView(card: card)
+                            .onTapGesture {
+                                viewModel.choose(card)
+                            }
                     }
                 }
                 .foregroundColor(/*@START_MENU_TOKEN@*/.red/*@END_MENU_TOKEN@*/)
             }
             Spacer()
-            HStack {
-                removeCardButton
-                Spacer()
-                addCardButton
-            }
-            .padding(.horizontal)
-            HStack {
-                ForEach(themes, id: \.self.icon) { theme in
-                    Button(action: {
-                        emojis = theme.emojis.shuffled()
-                        //emojiCount = Int.random(in: 4...emojis.count)
-                    }, label: {
-                        VStack {
-                            Image(systemName: theme.icon).font(.largeTitle)
-                            //Text(theme.icon).font(.largeTitle)
-                            Text(theme.title).font(.subheadline)
-                        }
-                    }).padding(.horizontal)
-                }
-            }.padding(.horizontal)
+            //            HStack {
+            //                ForEach(themes, id: \.self.icon) { theme in
+            //                    Button(action: {
+            //                        emojis = theme.emojis.shuffled()
+            //                        emojiCount = Int.random(in: 4...emojis.count)
+            //                    }, label: {
+            //                        VStack {
+            //                            Image(systemName: theme.icon).font(.largeTitle)
+            //                            //Text(theme.icon).font(.largeTitle)
+            //                            Text(theme.title).font(.subheadline)
+            //                        }
+            //                    }).padding(.horizontal)
+            //                }
+            //            }.padding(.horizontal)
         }
         .padding(.horizontal)
-    }
-    
-    var addCardButton: some View {
-        Button(action: {
-            if emojiCount < emojis.count {
-                emojiCount+=1
-            }
-        }, label: {
-            Image(systemName: "plus.circle")
-        })
-    }
-    
-    var removeCardButton: some View {
-        Button(action: {
-            if emojiCount > 0 {
-                emojiCount-=1
-            }
-        }, label: {
-            Image(systemName: "minus.circle")
-        })
     }
     
     func widthThatBestFits(cardCount: Int) -> CGFloat {
@@ -88,30 +62,31 @@ struct Theme {
 }
 
 struct CardView: View {
-    var content: String
-    
-    @State var isFaceUp: Bool = true
+    let card: MemoryGame<String>.Card
     
     var body: some View {
         ZStack {
             let shape = RoundedRectangle(cornerRadius: 20)
             
-            if isFaceUp {
+            if card.isFaceUp {
                 shape.fill().foregroundColor(.white)
                 shape.strokeBorder(lineWidth: 3)
-                Text(content).font(.largeTitle)
+                Text(card.content).font(.largeTitle)
             } else {
                 shape.fill()
             }
-        }.onTapGesture {
-            isFaceUp = !isFaceUp
         }.aspectRatio(2/3, contentMode: .fit)
     }
 }
 
+
+
+
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
+        let game = EmojiMemoryGame()
+        
+        ContentView(viewModel: game)
             .preferredColorScheme(.light)
         //        ContentView()
         //            .preferredColorScheme(.dark)
