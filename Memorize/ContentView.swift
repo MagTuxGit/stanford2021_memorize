@@ -7,15 +7,21 @@
 
 import SwiftUI
 
+let themes = [
+    Theme(icon: "car", title: "Vehicles", emojis: [ "🚗", "🚌", "🚛", "✈️", "🚀", "🚢", "🚲", "🏍", "🚂", "🚁", "⛵️", "🚒", "🚜", "🛵", "🚤", "🚑", "🛴", "🛺", "🚋", "🚆", "🛩", "🛸", "🛶", "🛳"]),
+    Theme(icon: "hare", title: "Animals", emojis: ["🐶", "🐱", "🐭", "🐹", "🐰", "🦊", "🐻", "🐼", "🐨", "🦁", "🐮", "🐷"]),
+    Theme(icon: "applelogo", title: "Fruits", emojis: ["🍎", "🍐", "🍊", "🍋", "🍌", "🍉", "🍇", "🍓", "🫐", "🍒", "🍑", "🍍", "🥥", "🥝"])
+]
+
 struct ContentView: View {
-    var emojis = [ "🚗", "🚌", "🚛", "✈️", "🚀", "🚢", "🚲", "🏍", "🚂", "🚁", "⛵️", "🚒", "🚜", "🛵", "🚤", "🚑", "🛴", "🛺", "🚋", "🚆", "🛩", "🛸", "🛶", "🛳"]
-    
-    @State var emojiCount = 12
+    @State var emojis = themes.first!.emojis
+    @State var emojiCount = 16
     
     var body: some View {
         VStack {
+            Text("Memorize!").font(.title)
             ScrollView {
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 70))]) {
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: widthThatBestFits(cardCount: emojiCount)))]) {
                     ForEach(emojis[0..<emojiCount], id: \.self) { emoji in
                         CardView(content: emoji)
                     }
@@ -29,7 +35,20 @@ struct ContentView: View {
                 addCardButton
             }
             .padding(.horizontal)
-            .font(.largeTitle)
+            HStack {
+                ForEach(themes, id: \.self.icon) { theme in
+                    Button(action: {
+                        emojis = theme.emojis.shuffled()
+                        //emojiCount = Int.random(in: 4...emojis.count)
+                    }, label: {
+                        VStack {
+                            Image(systemName: theme.icon).font(.largeTitle)
+                            //Text(theme.icon).font(.largeTitle)
+                            Text(theme.title).font(.subheadline)
+                        }
+                    }).padding(.horizontal)
+                }
+            }.padding(.horizontal)
         }
         .padding(.horizontal)
     }
@@ -53,6 +72,19 @@ struct ContentView: View {
             Image(systemName: "minus.circle")
         })
     }
+    
+    func widthThatBestFits(cardCount: Int) -> CGFloat {
+        if cardCount <= 16 {
+            return 70
+        }
+        return 65
+    }
+}
+
+struct Theme {
+    let icon: String
+    let title: String
+    let emojis: [String]
 }
 
 struct CardView: View {
@@ -77,13 +109,12 @@ struct CardView: View {
     }
 }
 
-
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
             .preferredColorScheme(.light)
-//        ContentView()
-//            .preferredColorScheme(.dark)
-//            .previewInterfaceOrientation(.landscapeLeft)
+        //        ContentView()
+        //            .preferredColorScheme(.dark)
+        //            .previewInterfaceOrientation(.landscapeLeft)
     }
 }
